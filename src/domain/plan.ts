@@ -22,9 +22,10 @@ export function getPlanDays(data: DataDocument, planId: ID): PlanDay[] {
     });
 }
 
-export function getScheduledDayForDate(data: DataDocument, planId: ID, date: string): PlanDay | undefined {
+export function getScheduledDayForDate(data: DataDocument, planId: ID, date: string, preferredDayId?: ID): PlanDay | undefined {
   const weekday = weekdayFromISO(date);
-  return getPlanDays(data, planId).find((day) => day.weekday === weekday);
+  const scheduledDays = getPlanDays(data, planId).filter((day) => day.weekday === weekday);
+  return scheduledDays.find((day) => day.id === preferredDayId) ?? scheduledDays[0];
 }
 
 export function getPlanBlocks(data: DataDocument, dayId: ID): PlanBlock[] {

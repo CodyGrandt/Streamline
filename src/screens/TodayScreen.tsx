@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { newId } from "../domain/ids";
-import { entriesForPlanExercise, entriesForSession, itemsForSession, previousEntryForExercise, sessionDurationMinutes } from "../domain/session";
+import { entriesForPlanExercise, entriesForSession, itemsForSession, latestFinishedSession, previousEntryForExercise, sessionDurationMinutes } from "../domain/session";
 import { getActivePlan, getPlanDays, getScheduledDayForDate, shiftDate, todayISO, weekdayFromISO } from "../domain/plan";
 import type { SessionPlanItem } from "../domain/model";
 import type { AppState } from "../state/appState";
@@ -46,17 +46,17 @@ export function TodayScreen({ state, dispatch }: Props) {
   const activePlan = getActivePlan(state.data);
   const days = activePlan ? getPlanDays(state.data, activePlan.id) : [];
   const weekday = weekdayFromISO(state.selectedDate);
-  const scheduledDay = activePlan ? getScheduledDayForDate(state.data, activePlan.id, state.selectedDate) : undefined;
-  const selectedDayId = scheduledDay?.id ?? (state.selectedPlanDayId && days.some((day) => day.id === state.selectedPlanDayId) ? state.selectedPlanDayId : undefined);
+  const scheduledDays = days.filter((day) => day.weekday === weekday);
+  const scheduledDay = activePlan ? getScheduledDayForDate(state.data, activePlan.id, state.selectedDate, state.selectedPlanDayId) : undefined;
+  const selectedDayId = scheduledDay?.id;
   const selectedDay = selectedDayId ? state.data.planDays[selectedDayId] : undefined;
   const activeSession = state.activeSessionId
     ? state.data.sessions[state.activeSessionId]
     : Object.values(state.data.sessions).find((session) => session.date === state.selectedDate && !session.finishedAt);
-  const completedSession = state.viewedSessionId
-    ? state.data.sessions[state.viewedSessionId]
-    : Object.values(state.data.sessions)
-      .filter((session) => session.date === state.selectedDate && session.finishedAt)
-      .sort((a, b) => (b.finishedAt ?? 0) - (a.finishedAt ?? 0))[0];
+  const viewedSession = state.viewedSessionId ? state.data.sessions[state.viewedSessionId] : undefined;
+  const completedSession = viewedSession?.date === state.selectedDate && viewedSession.finishedAt
+    ? viewedSession
+    : latestFinishedSession(state.data, state.selectedDate);
   const sessionItems = activeSession ? itemsForSession(state.data, activeSession.id) : [];
   const planPreview = selectedDay
     ? Object.values(state.data.planBlocks)
@@ -99,6 +99,8 @@ export function TodayScreen({ state, dispatch }: Props) {
   );
   const isToday = state.selectedDate === todayISO();
   const priorDate = activeSession?.date ?? state.selectedDate;
+  const weekdayName = new Date(`${state.selectedDate}T12:00:00`).toLocaleDateString(undefined, { weekday: "long" });
+  const showDayPicker = !activeSession && !completedSession && scheduledDays.length > 1;
 
   return <section className="screen today-screen">
     <div className="today-header">
@@ -117,7 +119,7 @@ export function TodayScreen({ state, dispatch }: Props) {
     {!activePlan ? <div className="empty-panel"><h3>No active plan</h3><p>Create a plan before logging a day.</p><button className="button primary" onClick={() => dispatch({ type: "NAVIGATE", route: "plans" })}>Open plans</button></div>
       : !scheduledDay ? <div className="empty-panel no-plan-day"><div className="eyebrow">NOT PLANNED</div><h3>No training day for this date</h3><p>Your active plan has no day assigned to {new Date(`${state.selectedDate}T12:00:00`).toLocaleDateString(undefined, { weekday: "long" })}.</p><button className="button primary" onClick={() => dispatch({ type: "NAVIGATE", route: "plans" })}>Open Plans to add a day</button></div>
         : <>
-          <div className="plan-selector"><label htmlFor="day-selector">Training day</label><select id="day-selector" title="Choose a different training day for this date" value={selectedDayId ?? ""} onChange={(event) => dispatch({ type: "SELECT_PLAN_DAY", dayId: event.target.value })}>{days.map((day) => <option key={day.id} value={day.id}>{day.name}{day.weekday ? ` · ${["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][day.weekday]}` : ""}</option>)}</select><span>Automatically selected from your active plan</span></div>
+           {showDayPicker && <div className="plan-selector"><label htmlFor="day-selector">Choose your {weekdayName} workout</label><select id="day-selector" title={`Choose which ${weekdayName} workout to do`} value={selectedDayId ?? ""} onChange={(event) => dispatch({ type: "SELECT_PLAN_DAY", dayId: event.target.value })}>{scheduledDays.map((day) => <option key={day.id} value={day.id}>{day.name}</option>)}</select><span>Your active plan has multiple workouts scheduled for {weekdayName}.</span></div>}
           {completedSession?.date === state.selectedDate && !activeSession ? <SessionSummaryScreen state={state} dispatch={dispatch} sessionId={completedSession.id} embedded /> : <>
             {activeSession && <div className="session-running"><div><span className="live-dot" /> Session in progress</div><span>Started {activeSession.startedAt ? new Date(activeSession.startedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "now"}</span></div>}
             {!activeSession && selectedDay && <button className="button primary start-button" title="Start a session from this plan-day snapshot" onClick={() => dispatch({ type: "START_SESSION", sessionId: newId("session"), date: state.selectedDate, planId: activePlan.id, planDayId: selectedDay.id, now: Date.now() })}>Start session <span>→</span></button>}

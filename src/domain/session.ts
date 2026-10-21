@@ -4,6 +4,12 @@ export function entriesForSession(data: DataDocument, sessionId: ID): SetEntry[]
   return Object.values(data.setEntries).filter((entry) => entry.sessionId === sessionId);
 }
 
+export function latestFinishedSession(data: DataDocument, date?: string): Session | undefined {
+  return Object.values(data.sessions)
+    .filter((session) => session.finishedAt !== undefined && (date === undefined || session.date === date))
+    .sort((a, b) => (b.finishedAt ?? 0) - (a.finishedAt ?? 0))[0];
+}
+
 export function itemsForSession(data: DataDocument, sessionId: ID): SessionPlanItem[] {
   return Object.values(data.sessionPlanItems)
     .filter((item) => item.sessionId === sessionId)

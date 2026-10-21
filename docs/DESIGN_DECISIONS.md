@@ -478,3 +478,27 @@ These remain open unless a later entry resolves them:
 - Session day cutoff for late-night training
 - Whether skipped-stretch reasons belong on `SetEntry` or a dedicated record
 - Skill as a table versus a fixed identifier set
+
+## D-060 — Show duplicate-weekday selection only before a session
+
+- **Status:** Accepted
+- **Date:** 2026-10-21
+- **Decision:** Today automatically uses the only plan day scheduled for the viewed weekday. It shows a clearly labelled workout selector only when multiple plan days share that weekday, and hides the selector during an active session or completed summary.
+- **Why:** A dropdown containing every training day made its purpose unclear and implied that any day could be selected for the current date. The only meaningful choice is between duplicate weekday options, such as two different Friday workouts.
+- **Consequence:** The selector is labelled “Choose your [weekday] workout,” contains only the plan days scheduled for that weekday, and explains why it appears. The selected plan day remains available in the persisted session snapshot.
+
+## D-058 — Preserve an explicitly selected duplicate weekday
+
+- **Status:** Accepted
+- **Date:** 2026-10-21
+- **Decision:** If an active plan contains multiple training days assigned to the same weekday, Today preserves the explicitly selected day for that weekday. Moving to another date recomputes the scheduled day for the new weekday.
+- **Why:** A user may intentionally create two Friday options, such as a strength Friday and a mobility Friday. Falling back to the first Friday every render makes the selector appear to change successfully while the selected session or summary can refer to a different day.
+- **Consequence:** The scheduled-day selector accepts a same-weekday plan day as the current choice. Selecting a day from another weekday is ignored, and changing dates resets selection to the first day scheduled for the new weekday.
+
+## D-059 — Recover completed summaries from persisted sessions
+
+- **Status:** Accepted
+- **Date:** 2026-10-21
+- **Decision:** The summary view validates transient session IDs against persisted finished sessions and falls back to the latest finished session for the selected date, then the latest finished session overall.
+- **Why:** Route and view identity are transient browser state. A refresh, stale hash route, or plan-day change must not produce “No finished session selected” when a completed session is still stored.
+- **Consequence:** Summary rendering remains grounded in persisted session records, while unfinished or missing transient IDs cannot replace a valid completed-session fallback.

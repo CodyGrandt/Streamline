@@ -1,10 +1,14 @@
-import { completedExerciseCount, entriesForSession, itemsForSession, sessionDurationMinutes, sessionStatus, totalHoldSecondsForSession, totalRepsForSession } from "../domain/session";
+import { completedExerciseCount, entriesForSession, itemsForSession, latestFinishedSession, sessionDurationMinutes, sessionStatus, totalHoldSecondsForSession, totalRepsForSession } from "../domain/session";
 import type { AppState } from "../state/appState";
 import type { Action } from "../state/reducer";
 
 export function SessionSummaryScreen({ state, dispatch, sessionId: requestedSessionId, embedded = false }: { state: AppState; dispatch: (action: Action) => void; sessionId?: string; embedded?: boolean }) {
-  const sessionId = requestedSessionId ?? state.viewedSessionId ?? state.lastFinishedSessionId;
-  const session = sessionId ? state.data.sessions[sessionId] : undefined;
+  const candidateIds = [requestedSessionId, state.viewedSessionId, state.lastFinishedSessionId].filter((id): id is string => Boolean(id));
+  const session = candidateIds
+    .map((id) => state.data.sessions[id])
+    .find((candidate) => candidate?.finishedAt !== undefined)
+    ?? latestFinishedSession(state.data, state.selectedDate)
+    ?? latestFinishedSession(state.data);
   if (!session) return <section className={embedded ? "embedded-summary empty-panel" : "screen empty-panel"}><h3>No finished session selected</h3>{!embedded && <button className="button primary" onClick={() => dispatch({ type: "NAVIGATE", route: "today" })}>Back to Today</button>}</section>;
   const status = sessionStatus(state.data, session);
   const entries = entriesForSession(state.data, session.id);

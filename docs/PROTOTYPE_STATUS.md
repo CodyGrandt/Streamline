@@ -68,6 +68,8 @@
 - Organized detailed project documents under `docs/` and added `docs/README.md` as a task-based context-loading guide.
 - Created the organized `src/` directory scaffold for domain, state, storage, screens, UI, and styles.
 - Expanded the root `README.md` with setup instructions, current capabilities, usage walkthrough, data model, architecture, scope, development workflow, and troubleshooting guidance.
+- Preserved explicit Today selection when an active plan has multiple training days on the same weekday, and made the completed summary recover from persisted finished sessions when transient summary identity is stale or missing.
+- Clarified Today plan-day selection: the app auto-uses the only workout scheduled for a weekday, and shows a clearly labelled selector only when multiple workouts share that weekday; it remains hidden during active sessions and completed summaries.
 - Decided that native-only integrations such as iCloud, Live Activities, WidgetKit, HealthKit, native notifications, and App Intents are outside the browser prototype's validation scope.
 
 ## In progress
@@ -144,6 +146,10 @@ Do not begin analytics or visual polish until this complete path is usable.
 | 2026-10-21 | Added skip-rest control | Rest can be ended early from the completed exercise card and advances the guide; `npm run build` passes |
 | 2026-10-21 | Allowed reps outside target range | Rep inputs accept any non-negative count while displaying the planned target for comparison; `npm run build` passes |
 | 2026-10-21 | Expanded project README | Added setup, usage, architecture, persistence, scope, development, documentation, and troubleshooting guidance; `npm run build` passes |
+| 2026-10-21 | Fixed duplicate-Friday selection and summary recovery | Same-weekday plan-day choices remain selectable; completed summaries fall back to persisted finished sessions; `npm run build` passes |
+| 2026-10-21 | Simplified active-session Today view | Training-day selection is hidden after session start; `npm run build` passes |
+| 2026-10-21 | Simplified completed-session Today view | Training-day selection is also hidden while the completed summary is visible; `npm run build` passes |
+| 2026-10-21 | Clarified duplicate-weekday workout selector | Selector now appears only for multiple workouts on the viewed weekday, lists only those workouts, and explains its purpose; `npm run build` passes |
 
 ## How to update this file
 

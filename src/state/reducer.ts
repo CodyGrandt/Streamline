@@ -1,7 +1,7 @@
 import { expandSessionPlan, getScheduledDayForDate, todayISO, weekdayFromISO } from "../domain/plan";
 import { newId } from "../domain/ids";
 import { cloneData, createSeedData, makeDemoHistory } from "../domain/seed";
-import { currentGuidedPlanExercise, nextGuidedPlanExercise, nextPlanExerciseAfterEntry } from "../domain/session";
+import { currentGuidedPlanExercise, latestFinishedSession, nextGuidedPlanExercise, nextPlanExerciseAfterEntry } from "../domain/session";
 import type {
   ExerciseCategory,
   Exercise,
@@ -92,13 +92,14 @@ export function reducer(state: AppState, action: Action): AppState {
         for (const exercise of Object.values(data.exercises)) exercise.sideMode ??= "none";
         data.skippedBlocks ??= {};
         const activePlan = Object.values(data.plans).find((plan) => plan.isActive);
-        const latestFinished = Object.values(data.sessions).filter((session) => session.finishedAt).sort((a, b) => (b.finishedAt ?? 0) - (a.finishedAt ?? 0))[0];
+        const latestFinished = latestFinishedSession(data);
         return {
           ...state,
           data,
           selectedPlanId: activePlan?.id,
-          selectedPlanDayId: activePlan ? getScheduledDayForDate(data, activePlan.id, state.selectedDate)?.id : undefined,
+           selectedPlanDayId: activePlan ? getScheduledDayForDate(data, activePlan.id, state.selectedDate, state.selectedPlanDayId)?.id : undefined,
           viewedSessionId: state.route === "summary" ? latestFinished?.id : state.viewedSessionId,
+          lastFinishedSessionId: state.route === "summary" ? latestFinished?.id : state.lastFinishedSessionId,
           hydrated: true,
         };
       }
@@ -116,7 +117,12 @@ export function reducer(state: AppState, action: Action): AppState {
     case "SELECT_PLAN":
       return { ...state, selectedPlanId: action.planId, editorPlanId: action.planId };
     case "SELECT_PLAN_DAY":
-      return { ...state, selectedPlanDayId: action.dayId };
+      {
+        const day = state.data.planDays[action.dayId];
+        const activePlan = Object.values(state.data.plans).find((plan) => plan.isActive);
+        const isSelectableForDate = Boolean(day && activePlan?.id === day.planId && day.weekday === weekdayFromISO(state.selectedDate));
+        return isSelectableForDate ? { ...state, selectedPlanDayId: action.dayId } : state;
+      }
     case "VIEW_SESSION":
       return { ...state, viewedSessionId: action.sessionId, lastFinishedSessionId: action.sessionId, route: "summary" };
     case "UPDATE_SETTINGS": {
