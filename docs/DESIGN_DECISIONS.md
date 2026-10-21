@@ -502,3 +502,35 @@ These remain open unless a later entry resolves them:
 - **Decision:** The summary view validates transient session IDs against persisted finished sessions and falls back to the latest finished session for the selected date, then the latest finished session overall.
 - **Why:** Route and view identity are transient browser state. A refresh, stale hash route, or plan-day change must not produce “No finished session selected” when a completed session is still stored.
 - **Consequence:** Summary rendering remains grounded in persisted session records, while unfinished or missing transient IDs cannot replace a valid completed-session fallback.
+
+## D-061 — Seed the supplied Monday-Sunday training template
+
+- **Status:** Accepted
+- **Date:** 2026-10-21
+- **Decision:** New and reset demo data uses the supplied weekly template. Active stretches precede the Monday, Wednesday, and Friday workouts; passive mobility precedes Tuesday, Thursday, and Saturday progressions. Exercises without a stated hold duration remain untargeted and use the stopwatch.
+- **Why:** The template's weekly order, mobility placement, ranges, and test days are the behavior the prototype should make usable and reviewable.
+- **Consequence:** Existing browser storage is preserved and must be explicitly reset to load the new seed. Unilateral Bulgarian split squats, lunges, and side planks are marked as each-side work. The app cannot enforce the 2-3 minute rest between Tuesday/Thursday progression blocks, so that instruction is included in the plan description; Saturday test rests are represented by their block rest. Session notes use the existing session-note field, and session time is calculated from timestamps. Sunday is a reflection-only plan day until the weekly-review workflow is implemented.
+
+## D-062 — Group the weekly template blocks as specified
+
+- **Status:** Accepted
+- **Date:** 2026-10-21
+- **Decision:** Keep Active Stretches as the first standalone block on Monday, Wednesday, and Friday. Make Monday's blocks 2-3, Wednesday's blocks 2-3, and Friday's blocks 2-3, 4-5, and 6-7 supersets. Combine the three passive mobility categories into one block named `Passive Stretches` on Tuesday, Thursday, and Saturday.
+- **Why:** This is the user's clarified intended workout grouping and should be visible in the plan and guided session flow.
+- **Consequence:** Exercise order and per-block round/rest ranges are retained inside the new groups. Passive stretches remain an ordered timed sequence. The earlier grouping implied by the initial seed is superseded.
+
+## D-063 — Advance immediately when timed work has no rest
+
+- **Status:** Accepted
+- **Date:** 2026-10-21
+- **Decision:** After a timed entry, if the current block has no positive rest duration, immediately select the next planned exercise and start its preparation phase when it is timed.
+- **Why:** A zero-rest stretch sequence should move to the next stretch rather than leave the just-completed exercise selected for another set.
+- **Consequence:** Continue and automatic target completion use the same progression rule. Positive rest durations retain the existing rest phase and advance when rest ends.
+
+## D-064 — Play the hold-complete cue on every timed-exercise exit
+
+- **Status:** Accepted
+- **Date:** 2026-10-21
+- **Decision:** Play the hold-complete sound whenever a timed exercise exits its exercise phase, whether it transitions to Rest, preparation for the next timed exercise, or idle.
+- **Why:** Zero-rest stretch sequences advance directly instead of entering Rest, but completion still needs an audible cue.
+- **Consequence:** The separate rest-complete cue remains tied to leaving the Rest phase. Browser audio remains best-effort and requires a prior user gesture.

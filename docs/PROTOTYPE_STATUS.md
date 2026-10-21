@@ -5,8 +5,8 @@
 ## Current state
 
 - **Overall phase:** Implementation
-- **Current slice:** Slice 1 — plan authoring and the first logging flow
-- **Next implementation slice:** Slice 2 — hold behavior
+- **Current slice:** Seeded weekly training template
+- **Next implementation slice:** Hands-on walkthrough of the seeded week
 - **Prototype runnable:** Yes — run `npm install` then `npm run dev`
 - **Last updated:** 2026-10-21
 
@@ -17,7 +17,7 @@
 - Defined the prototype's domain records, reducer seam, timer semantics, screens, build slices, and acceptance walkthrough.
 - Revised the model so users create and activate their own plans instead of using a hard-coded routine.
 - Added explicit plan days, block types, round/rest ranges, exercise targets, side modes, and session plan snapshots.
-- Added the supplied lower-body/core routine as generic demo seed content rather than treating it as the product's required routine.
+- Replaced the initial lower-body demo routine with the supplied Monday-Sunday weekly training template, including active/passive mobility and progression tests.
 - Scaffolded the Vite + React + TypeScript application.
 - Implemented the first plan-authoring flow: plans, training days, blocks, exercise targets, side mode, custom exercises, and active-plan selection.
 - Implemented Today plan preview, rep logging, previous-result display, session finish, summary editing, and local browser persistence.
@@ -64,6 +64,11 @@
 - Moved the strength Rest countdown onto the just-completed exercise card; the guide keeps that card current until rest ends, then advances to the next exercise.
 - Added Skip rest on the completed exercise card so the user can advance before the configured rest ends.
 - Rep entry no longer clamps input to the target minimum or maximum; the target range is guidance and actual logged performance may fall outside it.
+- Seeded the supplied active stretches before Monday, Wednesday, and Friday workouts, and passive mobility before Tuesday, Thursday, and Saturday progressions.
+- Grouped Monday's push/pull work, Wednesday's push/pull work, and Friday's three exercise pairs into supersets; grouped Tuesday, Thursday, and Saturday mobility into a single Passive Stretches block each.
+- Added stopwatch logging for seconds-based exercises without a prescribed duration, preserving untargeted tests and holds without inventing goals.
+- Fixed guided timed-exercise progression when a block has zero rest: Continue and automatic target completion now advance immediately to the next exercise.
+- Fixed the hold-complete sound cue so timed exercises ending into preparation or idle also play it, not only exercises that enter Rest.
 - Added `AGENTS.md` with repository purpose and working rules.
 - Organized detailed project documents under `docs/` and added `docs/README.md` as a task-based context-loading guide.
 - Created the organized `src/` directory scaffold for domain, state, storage, screens, UI, and styles.
@@ -74,24 +79,22 @@
 
 ## In progress
 
-- Slice 1 implementation is complete pending hands-on browser walkthrough. The next work is to exercise the flow, fix usability issues found during walkthrough, then begin hold behavior.
+- The weekly template is seeded and builds successfully. The next work is to walk through the weekday ordering, set/rest behavior, and untargeted hold logging in the browser.
 
 ## Not yet implemented
 
-- Hold timer, rest timer, guided stretches, history, import, review, analytics, and export
-- Hold timer, rest timer, guided stretches, history, import, review, analytics, and export
+- History, import, weekly review, analytics, and export
+- The Sunday weekly-reflection workflow; Sunday is currently a reflection-only plan day
 
 ## Recommended next step
 
-Verify Slice 1 as one vertical workflow:
+Verify the seeded weekly template in the browser:
 
-1. Run `npm install` and `npm run dev`.
-2. Create or edit a plan, add a training day, add a superset block, and add exercises.
-3. Activate the plan and open Today.
-4. Start a session and log multiple rep sets.
-5. Finish the session and edit the summary note/sleep fields.
-6. Refresh the browser and confirm the plan/session remain.
-7. Edit the plan and confirm the started session's snapshot remains unchanged.
+1. Use Reset demo to load the new seed; existing browser storage is intentionally not overwritten.
+2. Check active stretches remain separate on Monday/Wednesday/Friday, the requested exercise pairs are supersets, and Tuesday/Thursday/Saturday each have one Passive Stretches block.
+3. Confirm each 60-second active stretch advances after Continue despite the block's 0-second rest; log a Dead Hang or Saturday progression test and confirm the stopwatch records seconds without a target range.
+4. Check progression rest behavior, especially the 2-3 minute between-exercise note on Tuesday and Thursday.
+5. Finish a session, add a session note, and confirm the duration is calculated from session timestamps.
 
 Do not begin analytics or visual polish until this complete path is usable.
 
@@ -99,6 +102,9 @@ Do not begin analytics or visual polish until this complete path is usable.
 
 | Date | Change | Verification |
 | --- | --- | --- |
+| 2026-10-21 | Fixed hold-complete sound on zero-rest transitions | `npm run build` passes; browser audio check pending |
+| 2026-10-21 | Fixed timed progression with zero rest | `npm run build` passes; browser walkthrough pending |
+| 2026-10-21 | Seeded the supplied weekly training template | `npm run build` passes; browser walkthrough pending |
 | 2026-10-21 | Created prototype architecture | Document reviewed against the source specification |
 | 2026-10-21 | Created agent instructions | Scope and build rules recorded in `AGENTS.md` |
 | 2026-10-21 | Organized project documentation | Detailed documents moved under `docs/`; task-based loading added |

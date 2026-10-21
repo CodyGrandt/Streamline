@@ -36,7 +36,7 @@ export function TodayScreen({ state, dispatch }: Props) {
     const current = state.guidedTimer.phase;
     if (previous !== current) {
       if ((previous === "idle" && current === "exercise") || (previous === "preparation" && current === "exercise")) playEventSound("holdStart");
-      if (previous === "exercise" && current === "rest") playEventSound("holdComplete");
+      if (previous === "exercise" && current !== "exercise") playEventSound("holdComplete");
       if (previous === "rest" && current !== "rest") playEventSound("restComplete");
       previousTimerPhase.current = current;
     }
@@ -136,6 +136,7 @@ function TodayBlock({ blockId, blockItems, state, dispatch, openBlocks, setOpenB
   const skipped = activeSession ? Object.values(state.data.skippedBlocks).find((item) => item.sessionId === activeSession.id && item.blockId === blockId) : undefined;
   const isOpen = !skipped && (activeSession ? blockItems.some((item) => item.planExerciseId === state.guidedPlanExerciseId) || openBlocks[blockId] : openBlocks[blockId] ?? false);
   const timer = state.guidedTimer;
+  const restSummary = block.restMinS === 0 && block.restMaxS === 0 ? "" : ` · ${block.restMinS}–${block.restMaxS}s rest`;
 
   const skipBlock = () => {
     if (!activeSession) return;
@@ -147,7 +148,7 @@ function TodayBlock({ blockId, blockItems, state, dispatch, openBlocks, setOpenB
     <div className="today-block-header">
       <button className="today-block-toggle" type="button" aria-expanded={isOpen} aria-label={`${isOpen ? "Collapse" : "Expand"} ${block.blockName}`} title={isOpen ? "Collapse this block" : "Expand this block to log exercises"} onClick={() => setOpenBlocks((current) => ({ ...current, [blockId]: !isOpen }))}><span className="accordion-chevron">{isOpen ? "⌄" : "›"}</span></button>
       <div className="today-block-title"><div className="eyebrow">BLOCK {(block.blockOrder + 1).toString().padStart(2, "0")}</div><h3>{block.blockName}</h3></div>
-      <span className="today-block-summary">{skipped ? "Skipped" : `${block.roundsMax} rounds · ${block.restMinS}–${block.restMaxS}s rest`}</span>
+      <span className="today-block-summary">{skipped ? "Skipped" : `${block.roundsMax} rounds${restSummary}`}</span>
       {activeSession && !skipped && <button className="text-button skip-block-button" title="Skip this entire block and record a reason" onClick={skipBlock}>Skip block</button>}
     </div>
     {skipped ? <div className="today-block-content skipped-block-content"><div className="skipped-block-note">This block was skipped: {skipped.reason}.</div>{blockItems.map((item) => <LoggedBlockExercise key={item.id} item={item} state={state} activeSession={activeSession} />)}</div> : isOpen && <div className="today-block-content">{blockItems.map((item) => <TodayExercise key={item.id} item={item} state={state} dispatch={dispatch} activeSession={activeSession} timer={timer} priorDate={priorDate} />)}</div>}
@@ -162,7 +163,7 @@ function LoggedBlockExercise({ item, state, activeSession }: { item: SessionPlan
 function TodayExercise({ item, state, dispatch, activeSession, timer, priorDate }: { item: SessionPlanItem; state: AppState; dispatch: (action: Action) => void; activeSession?: AppState["data"]["sessions"][string]; timer: AppState["guidedTimer"]; priorDate: string }) {
   const entries = activeSession ? entriesForPlanExercise(state.data, activeSession.id, item.planExerciseId) : [];
   const isGuided = Boolean(activeSession && item.planExerciseId === state.guidedPlanExerciseId);
-  const isTimed = item.secondsMax !== undefined;
+  const isTimed = item.secondsMax !== undefined || state.data.exercises[item.exerciseId]?.metric === "seconds";
   const preparationRunning = isGuided && timer.phase === "preparation";
   const timerRunning = isGuided && timer.phase === "exercise";
   const restBelongsToItem = isGuided && timer.phase === "rest" && timer.planExerciseId === item.planExerciseId;
