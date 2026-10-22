@@ -534,3 +534,11 @@ These remain open unless a later entry resolves them:
 - **Decision:** Play the hold-complete sound whenever a timed exercise exits its exercise phase, whether it transitions to Rest, preparation for the next timed exercise, or idle.
 - **Why:** Zero-rest stretch sequences advance directly instead of entering Rest, but completion still needs an audible cue.
 - **Consequence:** The separate rest-complete cue remains tied to leaving the Rest phase. Browser audio remains best-effort and requires a prior user gesture.
+
+## D-065 — Stop untargeted holds manually
+
+- **Status:** Accepted
+- **Date:** 2026-10-21
+- **Decision:** Seconds-based exercises without a positive target duration use an open-ended stopwatch and finish only when the user presses Continue.
+- **Why:** Evaluation tests and holds such as Dead Hang have no prescribed time, so treating an absent target as zero ends them immediately and loses the user's actual result.
+- **Consequence:** Positive timed targets still auto-finish at their target. Untargeted exercises use the same set and rest progression after the user stops the stopwatch.

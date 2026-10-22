@@ -297,7 +297,7 @@ export function reducer(state: AppState, action: Action): AppState {
         const timer = state.guidedTimer;
         return { ...state, guidedTimer: { phase: "exercise", sessionId: timer.sessionId, planExerciseId: timer.planExerciseId, startedAt: timer.endsAt, targetSeconds: timer.targetSeconds }, clockNow: action.now };
       }
-      if (state.guidedTimer.phase === "exercise" && action.now >= state.guidedTimer.startedAt + state.guidedTimer.targetSeconds * 1000) {
+      if (state.guidedTimer.phase === "exercise" && state.guidedTimer.targetSeconds > 0 && action.now >= state.guidedTimer.startedAt + state.guidedTimer.targetSeconds * 1000) {
         const timer = state.guidedTimer;
         const item = Object.values(state.data.sessionPlanItems).find((candidate) => candidate.sessionId === timer.sessionId && candidate.planExerciseId === timer.planExerciseId);
         if (!item) return { ...state, guidedTimer: { phase: "idle" }, clockNow: action.now };

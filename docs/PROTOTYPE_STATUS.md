@@ -67,6 +67,7 @@
 - Seeded the supplied active stretches before Monday, Wednesday, and Friday workouts, and passive mobility before Tuesday, Thursday, and Saturday progressions.
 - Grouped Monday's push/pull work, Wednesday's push/pull work, and Friday's three exercise pairs into supersets; grouped Tuesday, Thursday, and Saturday mobility into a single Passive Stretches block each.
 - Added stopwatch logging for seconds-based exercises without a prescribed duration, preserving untargeted tests and holds without inventing goals.
+- Untargeted timed exercises such as Dead Hang now remain on the stopwatch until Continue; only exercises with a positive duration target auto-finish.
 - Fixed guided timed-exercise progression when a block has zero rest: Continue and automatic target completion now advance immediately to the next exercise.
 - Fixed the hold-complete sound cue so timed exercises ending into preparation or idle also play it, not only exercises that enter Rest.
 - Added `AGENTS.md` with repository purpose and working rules.
@@ -102,6 +103,7 @@ Do not begin analytics or visual polish until this complete path is usable.
 
 | Date | Change | Verification |
 | --- | --- | --- |
+| 2026-10-21 | Made untargeted hold timers manual-stop | `npm run build` passes; browser walkthrough pending |
 | 2026-10-21 | Fixed hold-complete sound on zero-rest transitions | `npm run build` passes; browser audio check pending |
 | 2026-10-21 | Fixed timed progression with zero rest | `npm run build` passes; browser walkthrough pending |
 | 2026-10-21 | Seeded the supplied weekly training template | `npm run build` passes; browser walkthrough pending |
